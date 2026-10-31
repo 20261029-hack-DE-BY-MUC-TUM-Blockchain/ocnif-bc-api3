@@ -1,0 +1,11 @@
+[profile.default]
+src = "contracts"
+test = "test"
+out = "out"
+solc_version = "0.8.37"
+evm_version = "cancun"
+optimizer = true
+remappings = ["@openzeppelin/contracts/=node_modules/@openzeppelin/contracts/", "solady/=node_modules/solady/src/"]
+
+[fuzz]
+runs = 256

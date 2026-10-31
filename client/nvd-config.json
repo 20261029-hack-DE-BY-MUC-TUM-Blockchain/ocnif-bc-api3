@@ -1,0 +1,13 @@
+{
+  "provider": "https://airnode-nvd.fly.dev/",
+  "expectedSigner": "0x41dd84D5B6503D9aA3c374a49F546e335423a1b8",
+  "operation": "getCve",
+  "scorePointer": "/vulnerabilities/0/cve/metrics/cvssMetricV31/0/cvssData/baseScore",
+  "defaultMaximumAge": 600,
+  "chainId": 84532,
+  "reviewedAt": "2026-10-31",
+  "sources": [
+    "https://airnode-nvd.fly.dev/",
+    "https://github.com/api3dao/airnodehub-hackathon"
+  ]
+}

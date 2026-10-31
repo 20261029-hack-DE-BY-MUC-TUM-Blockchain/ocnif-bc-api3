@@ -4,12 +4,22 @@ import { createHash } from "node:crypto";
 import { encodePacked, keccak256, toHex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import {
+  nvdRequest,
+  deriveRequestHash,
   deriveGatePolicy,
   gateArtifact,
   gateDeployment,
   gateSubmission,
   matchesGateRuntime,
 } from "../client/index.ts";
+
+test("reviewed NVD configuration reproduces the exact paid operation request hash", () => {
+  assert.equal(
+    deriveRequestHash(nvdRequest("CVE-2021-44228")),
+    "0xfb1cc071e090e6151b4cac7ea2319bf836b6abc2b22a1ac98ba3b4deb9b4bf1e",
+  );
+  assert.throws(() => nvdRequest("untrusted"));
+});
 
 test("wallet deployment artifact binds exact policy and runtime bytecode", () => {
   const policy = deriveGatePolicy(

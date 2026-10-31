@@ -6,11 +6,21 @@ import {
   type SignedResponse,
 } from "../src/attestation.ts";
 import artifact from "./gate-artifact.json" with { type: "json" };
+import nvdConfig from "./nvd-config.json" with { type: "json" };
 export { deriveRequestHash, verifyAttestation };
 export type { AirnodeRequest, SignedResponse };
 export const gateArtifact = artifact;
 export const gateAbi = artifact.abi as Abi;
 export const deploymentChainId = 84532;
+export const reviewedNvdConfig = nvdConfig;
+export function nvdRequest(cveId: string): AirnodeRequest {
+  if (!/^CVE-\d{4}-\d{4,}$/.test(cveId)) throw new Error("invalid_cve_id");
+  return {
+    operation: nvdConfig.operation,
+    parameters: { cveId },
+    responseProjection: { score: nvdConfig.scorePointer },
+  };
+}
 export interface GatePolicy {
   signer: Address;
   requestHash: Hex;

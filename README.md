@@ -20,6 +20,18 @@ npm start
 
 The authenticated application backend proxies this route for its signed-in user. An explicitly approved browser wallet payment can supply the standard `PAYMENT-SIGNATURE` header; the adapter forwards that exact proof once to the fixed Airnode operation and never creates a payment. It passes through bounded `PAYMENT-REQUIRED` and `PAYMENT-RESPONSE` headers. The paid response still must pass signer, request-hash, freshness and score validation. A payment receipt may accompany HTTP502 when a paid provider response fails validation; retain the receipt and investigate rather than paying again. Never expose the service's INTERNAL_TOKEN to the browser.
 
+## Wallet deployment / Despliegue con billetera
+
+`client/gate-artifact.json` contains the compiled `VulnerabilityGate` ABI, deployment/runtime bytecode, compiler settings, exact source hashes and deployment-bytecode SHA256. It was produced with pinned Solidity0.8.37, optimizer enabled and Cancun EVM target; no library linking is required. `client/index.ts` exports browser-safe helpers with `viem`2.57.3. Vendor the artifact, helper and `src/attestation.ts` together from one immutable commit.
+
+`deriveGatePolicy(request,{signer,maximumAge,thresholdTenths})` computes the exact canonical request hash. Use the configured official Airnode signer and the same complete request as the paid evidence. The user reviews those values; `maximumAge` is seconds and the CVSS threshold is tenths (`70` means7.0). `gateDeployment(policy)` returns the ABI, bytecode and constructor arguments for wallet deployment. The UI must require Base Sepolia chain84532, estimate gas and show the network fee before asking the connected wallet to deploy. The helper never submits a transaction itself.
+
+After a successful deployment receipt, fetch contract code and require `matchesGateRuntime(code)`. Read `expectedAirnode`, `expectedRequestHash`, `maxResponseAge` and `thresholdTenths` and compare all four with the approved policy; immutable bytes are deliberately excluded from the template code comparison and must be checked through those getters. Save the actual chain, contract address and deployment transaction for this wallet session.
+
+`await gateSubmission(evidence,policy)` revalidates the signed response and returns the `submitResponse(timestamp,data,signature)` call. It preserves the exact UTF-8 `data` bytes and rejects stale or altered evidence. Simulate/estimate this exact call, obtain wallet approval for its fee, then verify the successful transaction receipt, `VulnerabilityDecision` event and the resulting `lastScoreTenths`/`quarantined` state. Replays and out-of-order responses revert. A completed deployment or wallet signature alone is not a verified on-chain decision.
+
+El usuario revisa el firmante, la solicitud CVE, la antigüedad máxima y el umbral antes de desplegar en Base Sepolia. La aplicación estima ambas comisiones, comprueba el código y sus cuatro parámetros, y solo afirma una decisión en cadena después de verificar el recibo y el estado del contrato. No se ha registrado un despliegue real en las pruebas locales de este paquete.
+
 Una respuesta HTTP402 significa que falta pagar la operación; no representa evidencia verificada. El servicio nunca recibe claves privadas de billeteras.
 
 ## Contract / Contrato

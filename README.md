@@ -18,6 +18,8 @@ npm start
 
 `GET /health` checks the process. Authenticated `GET /v1/vulnerabilities/CVE-2021-44228` requires a Bearer INTERNAL_TOKEN. A signed response is verified before being returned. A priced operation returns HTTP402 and the provider's standard x402 requirements until a caller pays. No wallet key is accepted by this service. `npm run fetch -- CVE-2021-44228` calls the provider using the same verification path.
 
+The authenticated application backend proxies this route for its signed-in user. An explicitly approved browser wallet payment can supply the standard `PAYMENT-SIGNATURE` header; the adapter forwards that exact proof once to the fixed Airnode operation and never creates a payment. It passes through bounded `PAYMENT-REQUIRED` and `PAYMENT-RESPONSE` headers. The paid response still must pass signer, request-hash, freshness and score validation. A payment receipt may accompany HTTP502 when a paid provider response fails validation; retain the receipt and investigate rather than paying again. Never expose the service's INTERNAL_TOKEN to the browser.
+
 Una respuesta HTTP402 significa que falta pagar la operación; no representa evidencia verificada. El servicio nunca recibe claves privadas de billeteras.
 
 ## Contract / Contrato
